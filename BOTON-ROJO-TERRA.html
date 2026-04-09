@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>No toques la burger 🍔</title>
+
+<style>
+body {
+  margin:0;
+  font-family: Arial, sans-serif;
+  text-align:center;
+  background: linear-gradient(135deg,#000,#1a1a1a);
+  color:white;
+}
+
+h1 { margin-top:15px; }
+
+#burger {
+  width:140px;
+  margin-top:40px;
+  transition: transform 0.2s, filter 0.2s;
+  cursor:pointer;
+}
+
+#burger:active {
+  transform: scale(1.2);
+}
+
+#message {
+  margin-top:20px;
+  font-size:20px;
+  padding:0 20px;
+}
+
+#endScreen {
+  display:none;
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:#000000ee;
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
+  padding:20px;
+}
+
+button {
+  padding:12px 20px;
+  font-size:16px;
+  border:none;
+  border-radius:10px;
+  margin-top:10px;
+  cursor:pointer;
+}
+
+#reviewBtn {
+  background:#ffcc00;
+  color:black;
+}
+
+#restartBtn {
+  background:#ff5733;
+  color:white;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🚫 NO TOQUES ESTA BURGER</h1>
+
+<img id="burger" src="https://cdn-icons-png.flaticon.com/512/3075/3075977.png">
+
+<div id="message">(En serio… no lo hagas)</div>
+
+<div id="endScreen">
+  <h2 id="resultText"></h2>
+  <h3 id="codeText"></h3>
+  <button id="reviewBtn" onclick="goReview()">⭐ Dejar reseña</button>
+  <button id="restartBtn" onclick="restartGame()">🔄 Intentar otra vez</button>
+</div>
+
+<script>
+let phase = 0;
+let canClick = true;
+let gameActive = true;
+let successClicks = 0;
+let timeLeft = 10;
+let colorMode = false;
+let currentColor = "red";
+
+const burger = document.getElementById("burger");
+const message = document.getElementById("message");
+
+burger.onclick = function() {
+
+  if (!gameActive) return;
+
+  // FASE 1: advertencias
+  if (phase === 0) {
+    message.innerText = "😑 Te dije que no...";
+    phase++;
+    return;
+  }
+
+  if (phase === 1) {
+    message.innerText = "⚠️ Última advertencia...";
+    phase++;
+    return;
+  }
+
+  if (phase === 2) {
+    message.innerText = "😈 Ahora sí... juega bien";
+    startColorGame();
+    phase++;
+    return;
+  }
+
+  // FASE 2: juego de colores
+  if (colorMode) {
+
+    if (currentColor === "green") {
+      successClicks++;
+    } else {
+      endGame(false);
+    }
+  }
+};
+
+// juego de colores
+function startColorGame() {
+  colorMode = true;
+  message.innerText = "🟢 Toca SOLO cuando sea VERDE";
+
+  let colorInterval = setInterval(() => {
+
+    if (!gameActive) {
+      clearInterval(colorInterval);
+      return;
+    }
+
+    let rand = Math.random();
+
+    if (rand < 0.4) {
+      currentColor = "red";
+      burger.style.filter = "hue-rotate(0deg)";
+    } else if (rand < 0.7) {
+      currentColor = "yellow";
+      burger.style.filter = "hue-rotate(60deg)";
+    } else {
+      currentColor = "green";
+      burger.style.filter = "hue-rotate(120deg)";
+    }
+
+  }, 600);
+
+  // contador
+  let timer = setInterval(() => {
+
+    if (!gameActive) {
+      clearInterval(timer);
+      return;
+    }
+
+    timeLeft--;
+    message.innerText = "⏱️ Tiempo: " + timeLeft + " | Aciertos: " + successClicks;
+
+    if (timeLeft <= 0) {
+      clearInterval(timer);
+      finalTrap();
+    }
+
+  },1000);
+}
+
+// trampa final
+function finalTrap() {
+  colorMode = false;
+  message.innerText = "🚫 Última regla: NO TOQUES NADA";
+
+  setTimeout(() => {
+
+    if (!gameActive) return;
+
+    message.innerText = "😏 …¿Seguro?";
+
+    burger.onclick = function() {
+      endGame(true);
+    };
+
+  },3000);
+}
+
+// resultado
+function endGame(win) {
+  gameActive = false;
+
+  let result = document.getElementById("resultText");
+  let code = document.getElementById("codeText");
+
+  if (win && successClicks >= 3) {
+    result.innerHTML = "🎉 ¡GANASTE CAFÉ ESPECIAL TERRA!";
+    code.innerHTML = "Código: TERRA-PRO-01 ☕";
+  } else {
+    result.innerHTML = "😅 Casi lo logras…";
+    code.innerHTML = "Inténtalo otra vez 🔥";
+  }
+
+  document.getElementById("endScreen").style.display = "flex";
+}
+
+// botones
+function restartGame() {
+  location.reload();
+}
+
+function goReview() {
+  window.location.href = "https://g.page/r/CRgfgSx47NtyEAE/review";
+}
+</script>
+
+</body>
+</html>
